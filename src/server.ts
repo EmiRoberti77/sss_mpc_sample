@@ -1,21 +1,26 @@
-import { split, combine } from "shamirs-secret-sharing-ts";
-import bigInt from "big-integer";
+const partyInput: number[] = [10, 20, 30];
 
-const totalParties = 3;
-const threshold = 2;
-
-const partyInput: number[] = [10, 20, 30, 40];
-
-const shares: Buffer[][] = partyInput.map((input) => {
-  return split(Buffer.from(bigInt(input).toString()), {
-    shares: totalParties,
-    threshold,
-  });
+// STEP 1 - craete the random shares
+const randomShares: number[][] = partyInput.map((input) => {
+  const r1 = Math.floor(Math.random() * 100);
+  const r2 = input - r1;
+  const shares = [r1, r2];
+  console.log(r1 + r2);
+  console.log(shares);
+  return shares;
 });
-console.log(shares);
-const reconstructedShares = shares.map((s) => s.slice(0, threshold));
-const secureSum = reconstructedShares
-  .map((s) => parseInt(combine(s).toString()))
-  .reduce((a, b) => a + b, 0);
-
-console.log("secureSum", secureSum);
+// STEP 2 - distribute the shares
+// these are the shares that are distributes to a external source
+const sharedValues = randomShares.map((shares) => shares[0]);
+// these are the shares that are kept locally
+const localShares = randomShares.map((shares) => shares[1]);
+//STEP 3 - compute the SUM
+const sharedSum = sharedValues.reduce((a, b) => a + b, 0);
+const localSum = localShares.reduce((a, b) => a + b, 0);
+const finalOutPut = sharedSum + localSum;
+//output of computation
+console.log("sharedValues", sharedValues);
+console.log("localShares", localShares);
+console.log("sharedSum:", sharedSum);
+console.log("localSum:", localSum);
+console.log("finalOutPut:", finalOutPut);

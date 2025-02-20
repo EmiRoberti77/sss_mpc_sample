@@ -11,11 +11,13 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^22.13.4",
     "typescript": "^5.7.3"
   },
   "dependencies": {
     "big-integer": "^1.6.52",
+    "crypto-js": "^4.2.0",
     "http": "^0.0.1-security",
     "shamirs-secret-sharing-ts": "^1.0.2"
   }
