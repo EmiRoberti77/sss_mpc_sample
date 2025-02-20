@@ -1,4 +1,4 @@
-# 🔐 Multi-Party Computation (MPC) with Shamir's Secret Sharing in TypeScript
+# 🔐 Multi-Party Computation (MPC) with SSS in TypeScript
 
 This project demonstrates **Multi-Party Computation (MPC)** using **Shamir's Secret Sharing (SSS)** in **TypeScript**. It securely computes the sum of multiple private inputs without revealing individual values.
 
