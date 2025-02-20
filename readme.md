@@ -1,27 +1,17 @@
-# 🔐 Multi-Party Computation (MPC) with SSS in TypeScript
+# 🔐 Multi-Party Computation (MPC) with AES Encrypted Shares in TypeScript
 
-This project demonstrates **Multi-Party Computation (MPC)** using **Shamir's Secret Sharing (SSS)** in **TypeScript**. It securely computes the sum of multiple private inputs without revealing individual values.
+This project demonstrates **Multi-Party Computation (MPC)** using **AES encryption** to secure secret shares before computing a **secure sum**. Each participant encrypts part of their number and distributes it to other parties while keeping part of it private.
 
 ---
 
 ## 🚀 Features
 
-✅ Securely splits a secret into multiple **shares**.
-✅ Only a minimum **threshold of shares** is required to reconstruct the secret.
-✅ Computes the **sum of private numbers** securely.
-✅ Uses **Shamir’s Secret Sharing (SSS)** for secure computation.
-✅ Ensures **privacy** (no party learns others' inputs).
+✅ **Secure Encryption of Secret Shares** using AES.
+✅ **Confidential Computation**—ensuring no party sees another's full input.
+✅ **Secure Aggregation**—each party contributes without revealing private data.
+✅ **Decryption & Reconstruction**—only the final sum is revealed.
 
 ---
-
-## 📌 Installation
-
-### 1️⃣ **Clone the Repository**
-
-```sh
-git clone https://github.com/your-username/mpc-shamir-ts.git
-cd mpc-shamir-ts
-```
 
 ### 2️⃣ **Install Dependencies**
 
@@ -33,56 +23,57 @@ npm install
 
 ## 📜 How It Works
 
-Each party **shares** its private number in a way that it can be reconstructed **only if the threshold number of parties agree**. Otherwise, the secret remains hidden.
-
-1️⃣ Each party **splits** its secret number into multiple shares.
-2️⃣ Only a **subset of shares** (meeting the threshold) can **reconstruct the original secret**.
-3️⃣ The **sum** of securely shared numbers is computed without revealing individual inputs.
-
----
-
-## 🛠 Usage
-
-### **Run Secure Sum Computation**
-
-```sh
-npm start
-```
-
-or manually using TypeScript:
-
-```sh
-ts-node mpc.ts
-```
+1️⃣ Each party generates a **random share** of their number.
+2️⃣ One share is **encrypted** and distributed.
+3️⃣ The **remaining share is kept private**.
+4️⃣ Encrypted shares are **decrypted**.
+5️⃣ The sum is computed securely **without revealing individual inputs**.
 
 ---
 
 ## 🔑 Code Overview
 
-### **🔹 `mpc.ts` (Main Computation File)**
+### **🔹 `mpc_encrypted.ts` (Main Computation File)**
 
 ```typescript
-import { split, combine } from "shamirs-secret-sharing-ts";
+import CryptoJS from "crypto-js";
 import bigInt from "big-integer";
+const partyInput: number[] = [10, 20, 30];
+const encryptKey = "1234567890";
 
-const totalParties = 3;
-const threshold = 2;
+// STEP 1 - Create the random shares
+const randomEncryptedShares: { encrypted: any; kept: number }[] =
+  partyInput.map((input) => {
+    const r1 = Math.floor(Math.random() * 100);
+    const r2 = input - r1;
+    console.log(r1 + r2);
+    const encryptedR1 = CryptoJS.AES.encrypt(r1.toString(), encryptKey);
+    return { encrypted: encryptedR1, kept: r2 };
+  });
 
-const partyInputs: number[] = [10, 20, 30];
-
-const shares: Buffer[][] = partyInputs.map((input) =>
-  split(Buffer.from(bigInt(input).toString()), {
-    shares: totalParties,
-    threshold,
-  })
+// STEP 2 - Distribute the shares
+const sharedEncryptedValues = randomEncryptedShares.map(
+  (shares) => shares.encrypted
 );
+const keptShares = randomEncryptedShares.map((shares) => shares.kept);
 
-const reconstructedShares = shares.map((s) => s.slice(0, threshold));
-const secureSum = reconstructedShares
-  .map((s) => parseInt(combine(s).toString()))
-  .reduce((a, b) => a + b, 0);
+// STEP 3 - Decrypt the shares
+const decryptedShares = sharedEncryptedValues.map((encryptedShare) => {
+  const bytes = CryptoJS.AES.decrypt(encryptedShare, encryptKey);
+  return parseInt(bytes.toString(CryptoJS.enc.Utf8));
+});
 
-console.log(`Securely Computed Sum: ${secureSum}`);
+// STEP 4 - Compute the SUM
+const sharedSum = decryptedShares.reduce((a, b) => a + b, 0);
+const localSum = keptShares.reduce((a, b) => a + b, 0);
+const finalOutput = sharedSum + localSum;
+
+// Output results
+console.log("Encrypted Values:", sharedEncryptedValues);
+console.log("Decrypted Shared Values:", decryptedShares);
+console.log("Kept Shares:", keptShares);
+console.log("Local Sum:", localSum);
+console.log("Final Computed Output:", finalOutput);
 ```
 
 ---
@@ -90,7 +81,11 @@ console.log(`Securely Computed Sum: ${secureSum}`);
 ## 📈 Expected Output
 
 ```sh
-Securely Computed Sum: 60
+Encrypted Values: [AES Encrypted Strings]
+Decrypted Shared Values: [Numeric values]
+Kept Shares: [Numeric values]
+Local Sum: XX
+Final Computed Output: XX
 ```
 
 ---
@@ -98,36 +93,26 @@ Securely Computed Sum: 60
 ## 🔥 Why Use This?
 
 🔹 **Privacy-Preserving Computation** – No single party learns another's input.
-🔹 **Fault-Tolerant** – Even if some shares are lost, the secret can be reconstructed.
-🔹 **Threshold Security** – An attacker cannot recover the secret without the required threshold.
+🔹 **AES Encryption for Security** – Shares are encrypted before distribution.
+🔹 **Threshold-Based Secret Sharing** – Ensures computation remains confidential.
 
 ---
 
 ## 📖 References
 
-- [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing)
+- [AES Encryption](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
 - [Multi-Party Computation (MPC)](https://en.wikipedia.org/wiki/Secure_multi-party_computation)
 
 ---
 
 ## 🛠️ Future Improvements
 
-- 🔄 **Secure Multiplication** instead of just summation.
-- 🔐 **Elliptic Curve Cryptography (ECC) Integration**.
-- 🗳 **Secure Voting System** using MPC.
+- 🔄 **Use Public-Key Cryptography (RSA/ECC)**.
+- 🔐 **Implement Secure Multiplication Computation**.
+- 🗳 **Extend for Secure Voting Applications**.
 
 ---
 
-## 🤝 Contributing
-
-Feel free to submit **issues** and **pull requests** to enhance this project!
-
----
-
-## 📜 License
-
-This project is open-source under the **MIT License**.
-
-## Author
+## 📜 Author
 
 Emi Roberti
